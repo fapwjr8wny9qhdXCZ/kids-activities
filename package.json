@@ -1,0 +1,11 @@
+{
+  "name": "kids-activities",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "node scripts/scrape.mjs",
+    "build": "node scripts/build.mjs",
+    "all": "npm run scrape && npm run build"
+  },
+  "dependencies": { "playwright": "^1.48.0" }
+}

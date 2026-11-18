@@ -1,0 +1,44 @@
+[
+ {
+  "source": "https://www.zuerich-kultur.ch/zuerich/kinder/",
+  "date": "2026-11-18",
+  "end": "2026-12-31",
+  "dow": "3",
+  "time": "",
+  "title": "Familienführung Opernhaus",
+  "place": "Opernhaus Zürich",
+  "min": null,
+  "reg": "city",
+  "always": false,
+  "age": "",
+  "url": "https://www.zuerich-kultur.ch/kultur/zuerich/einrichtungen/opernhaus.zuerich/termine.html#seg172138"
+ },
+ {
+  "source": "https://www.zuerich-kultur.ch/zuerich/kinder/",
+  "date": "2026-11-19",
+  "end": null,
+  "dow": null,
+  "time": "",
+  "title": "Alice im Wunderland",
+  "place": "Opernhaus Zürich",
+  "min": null,
+  "reg": "city",
+  "always": false,
+  "age": "",
+  "url": "https://www.zuerich-kultur.ch/kultur/zuerich/einrichtungen/opernhaus.zuerich/termine.html#seg161235"
+ },
+ {
+  "source": "https://www.zuerich-kultur.ch/zuerich/kinder/",
+  "date": "2026-11-18",
+  "end": "2027-12-31",
+  "dow": null,
+  "time": "",
+  "title": "Zoo Zürich",
+  "place": "Zürichbergstrasse 221",
+  "min": null,
+  "reg": "city",
+  "always": true,
+  "age": "",
+  "url": "https://www.zuerich-kultur.ch/zuerich/kinder/zoo-zuerich"
+ }
+]

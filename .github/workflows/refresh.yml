@@ -1,0 +1,54 @@
+name: Refresh and publish
+
+on:
+  schedule:
+    - cron: "0 4 * * 0"   # every Sunday, 04:00 UTC (05:00 or 06:00 in Zurich)
+  workflow_dispatch:       # lets you run it by hand from the Actions tab
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Scrape (keeps old data for any source that fails)
+        run: node scripts/scrape.mjs
+        continue-on-error: true
+      - run: node scripts/build.mjs
+      - name: Save refreshed data
+        run: |
+          git config user.name "kids-activities-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/events.json data/gzcache.json
+          git diff --cached --quiet || git commit -m "Refresh events" && git push || true
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

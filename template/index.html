@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kids activities</title>
+<style>
+:root{--bg:#f6f4ff;--surface:#fff;--ink:#16132b;--mute:#6b6885;--line:#e4e1f5;--accent:#6d4aff;--accent2:#ff7a59;--chip:#efecff;
+--glow:radial-gradient(60rem 30rem at 10% -10%,#d9ceff 0,transparent 60%),radial-gradient(50rem 28rem at 100% 0,#ffd9cc 0,transparent 55%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0c1c;--surface:#181530;--ink:#f1eefe;--mute:#9a96bd;--line:#2a2650;--accent:#8e72ff;--accent2:#ff8f70;--chip:#242048;
+--glow:radial-gradient(60rem 30rem at 10% -10%,#2a1f66 0,transparent 60%),radial-gradient(50rem 28rem at 100% 0,#4a2230 0,transparent 55%)}}
+:root[data-theme="dark"]{--bg:#0e0c1c;--surface:#181530;--ink:#f1eefe;--mute:#9a96bd;--line:#2a2650;--accent:#8e72ff;--accent2:#ff8f70;--chip:#242048;
+--glow:radial-gradient(60rem 30rem at 10% -10%,#2a1f66 0,transparent 60%),radial-gradient(50rem 28rem at 100% 0,#4a2230 0,transparent 55%)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background-color:var(--bg);background-image:var(--glow);background-repeat:no-repeat;background-attachment:fixed;color:var(--ink);font:16px/1.5 ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:28px 18px 80px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(2rem,6vw,3.1rem);letter-spacing:-.03em;line-height:1.05;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.by{font-size:.75rem;color:var(--mute);letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.sub{color:var(--mute);margin:14px 0 0}
+.panel{background:color-mix(in srgb,var(--surface) 80%,transparent);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:20px;padding:16px}
+.lbl{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 8px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.row+.lbl{margin-top:16px}
+button{font:inherit;color:inherit;cursor:pointer}
+.chip{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:7px 14px;font-size:.9rem;transition:.15s}
+.chip:hover{transform:translateY(-1px)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip:focus-visible,.btn:focus-visible,input:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:16px}
+.btn{border:0;border-radius:14px;padding:11px 18px;font-weight:600;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 8px 24px -10px var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn[disabled]{opacity:.6;cursor:progress}
+.status{color:var(--mute);font-size:.88rem}
+h2{font-size:1.05rem;margin:32px 0 12px;display:flex;align-items:baseline;gap:10px}
+h2 small{color:var(--mute);font-weight:400;font-size:.85rem}
+.grid{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px;display:grid;gap:6px;animation:in .35s ease both}
+.card h3{margin:0;font-size:1.05rem;line-height:1.3}
+.card p{margin:0;color:var(--mute);font-size:.92rem}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:.82rem;color:var(--mute)}
+.tag{background:var(--chip);border-radius:8px;padding:2px 8px;font-size:.75rem}
+.card a{color:var(--accent);text-decoration:none;font-weight:600;font-size:.88rem}
+.empty{text-align:center;color:var(--mute);padding:40px 10px;border:1px dashed var(--line);border-radius:18px;margin-top:24px}
+.skel{height:92px;border-radius:18px;background:linear-gradient(90deg,var(--surface),var(--chip),var(--surface));background-size:200% 100%;animation:sh 1.2s linear infinite}
+dialog{border:1px solid var(--line);border-radius:22px;background:var(--surface);color:var(--ink);width:min(560px,92vw);padding:20px}
+dialog::backdrop{background:rgba(10,8,25,.5);backdrop-filter:blur(4px)}
+.src{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.src span{flex:1;overflow-wrap:anywhere;font-size:.88rem}
+.x{border:0;background:none;color:var(--mute);font-size:1.2rem}
+input{font:inherit;width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.og{margin-top:20px}.og summary{cursor:pointer;list-style:none;display:flex;gap:8px;align-items:center;font-weight:600;padding:12px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}.og summary::-webkit-details-marker{display:none}.og summary::after{content:"+";margin-left:auto;color:var(--mute)}.og[open] summary::after{content:"\2212"}.og summary span{background:var(--chip);border-radius:999px;padding:0 9px;font-size:.8rem;font-weight:500}.og[open] summary{margin-bottom:12px}.card.mini{padding:12px 16px}.card.mini h3{font-size:.98rem}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.tb{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:22px;padding:10px;border:1px solid var(--line);border-radius:20px;background:color-mix(in srgb,var(--surface) 80%,transparent);backdrop-filter:blur(14px)}
+.wk{display:flex;align-items:center;gap:6px}
+.wk b{font-size:.95rem;font-weight:600;padding:0 6px}
+.ib{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);background:var(--chip);font-size:1.1rem;line-height:1}
+.ib:disabled{opacity:.4}
+.fb{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--chip);border-radius:14px;padding:8px 14px;font-size:.88rem}
+.fb small{color:var(--mute)}
+.fb[aria-expanded="true"]{border-color:var(--accent)}
+.panel{margin-top:10px}
+.step{display:inline-flex;align-items:center;gap:6px;margin:0 4px}
+.step .ib{width:30px;height:30px;border-radius:10px}
+.step b{min-width:1.5em;text-align:center}
+.foot{margin-top:36px;color:var(--mute);font-size:.78rem;text-align:center}
+.link{background:none;border:0;color:var(--accent);font-weight:600;font-size:.85rem;padding:6px}
+.more{background:none;border:0;padding:0;color:var(--accent,#7c6cff);font:inherit;cursor:pointer}
+.note{margin:.5rem 0 0;font-size:.85rem;opacity:.8;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div><h1>Kids activities</h1><div class="by">by Sim Lab</div></div></header>
+
+<div class="tb">
+<div class="wk"><button class="ib" id="prev" aria-label="Previous week">&lsaquo;</button><b id="range"></b><button class="ib" id="next" aria-label="Next week">&rsaquo;</button><button class="link" id="today" hidden>This week</button></div>
+<button class="fb" id="ftog" aria-expanded="false" aria-controls="panel">Filters <small id="sum"></small></button>
+</div>
+
+<section class="panel" id="panel" hidden>
+<p class="lbl">Weekdays</p><div class="row" id="days"></div>
+<p class="lbl">Age</p>
+<div class="row" style="align-items:center"><button class="chip" id="ageOn"></button><span class="step" id="stepper"><button class="ib" id="aM" aria-label="Lower">&minus;</button><b id="aV"></b><button class="ib" id="aP" aria-label="Higher">+</button></span><span id="aU" class="status">years</span><button class="chip" id="babyOn" aria-pressed="false">Include babies (1y or younger)</button></div>
+<p class="lbl">Region</p><div class="row" id="regChips"></div>
+<p class="lbl">Sources</p><div class="row" id="srcChips"></div>
+<div class="bar"><span></span><button class="btn ghost" id="edit">Edit sources</button></div>
+</section>
+
+<main id="out"></main>
+<p class="foot" id="foot"></p>
+</div>
+
+<dialog id="dlg">
+<h2 style="margin-top:0">Edit sources</h2>
+<div id="list"></div>
+<div class="row" style="margin-top:14px;flex-wrap:nowrap"><input id="new" placeholder="https://..." inputmode="url"><button class="btn" id="add">Add</button></div>
+<div class="bar"><button class="btn ghost" id="reset">Reset to defaults</button><button class="btn ghost" id="close">Done</button></div>
+</dialog>
+
+<script>
+const DEFAULTS=["https://kikuka.ch/kalender","https://gz-zh.ch/","https://zko.ch/kids/kinderkonzerte/","https://www.stadt-zuerich.ch/de/stadtleben/zusammenleben/in-den-quartieren/familienfreizeit/in-ganz-zuerich.html","https://kinderregion.ch/de/ausflugsideen/","https://www.zuerich-kultur.ch/zuerich/kinder/","https://kreisflohmi.ch/","https://theater-purpur.ch/theater"];
+const DAYS=[[1,"Mon"],[2,"Tue"],[3,"Wed"],[4,"Thu"],[5,"Fri"],[6,"Sat"],[0,"Sun"]];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const host=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch{return u}};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+
+let sources=store.get("ka.sources",null);
+if(!sources)sources=DEFAULTS.map(u=>({url:u,on:true}));
+DEFAULTS.forEach(u=>{if(!sources.some(s=>host(s.url)===host(u))&&!store.get("ka.sources.custom",false))sources.push({url:u,on:true})});
+let days=new Set(store.get("ka.days",[1,5,6,0]));
+let ageLim=store.get("ka.age2",5);let babies=store.get("ka.babies",false); // number or null
+let weekOff=0;
+let region=store.get("ka.reg","city");
+
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function weekOf(o){const t=new Date();t.setHours(12,0,0,0);const m=new Date(t);m.setDate(t.getDate()-((t.getDay()+6)%7)+7*o);const e=new Date(m);e.setDate(m.getDate()+6);return{mon:m,sun:e}}
+
+const EVENTS=/*EVENTS*/[]/*END*/;
+function save(){store.set("ka.sources",sources);store.set("ka.days",[...days]);store.set("ka.age2",ageLim);store.set("ka.reg",region);store.set("ka.babies",babies)}
+const fmt=(d,o)=>d.toLocaleDateString("en-GB",o);
+function renderBar(){
+ const w=weekOf(weekOff);
+ $("#range").textContent=fmt(w.mon,{weekday:"short",day:"numeric",month:"short"})+" to "+fmt(w.sun,{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+ $("#today").hidden=weekOff===0;
+ const dn=DAYS.filter(d=>days.has(d[0])).map(d=>d[1]).join(" ")||"no days";
+ const n=sources.filter(s=>s.on).length;
+ $("#sum").textContent=dn+" · "+(ageLim==null?"any age":"under "+ageLim)+(babies?" + babies":"")+" · "+(region==="city"?"Zürich city":"whole region")+" · "+n+" sources";
+}
+function renderFilters(){
+ $("#regChips").innerHTML=[["city","Only Zürich city"],["all","Whole region"]].map(([v,l])=>`<button class="chip ${region===v?"on":""}" data-g="${v}" aria-pressed="${region===v}">${l}</button>`).join("");
+ $("#days").innerHTML=DAYS.map(([n,l])=>`<button class="chip ${days.has(n)?"on":""}" data-d="${n}" aria-pressed="${days.has(n)}">${l}</button>`).join("");
+ const on=ageLim!=null;
+ $("#babyOn").className="chip"+(babies?" on":"");$("#babyOn").setAttribute("aria-pressed",babies);
+ $("#ageOn").className="chip"+(on?" on":"");$("#ageOn").textContent=on?"Targeting under":"Any age";$("#ageOn").setAttribute("aria-pressed",on);
+ $("#stepper").style.visibility=on?"visible":"hidden";$("#aU").style.visibility=on?"visible":"hidden";$("#aV").textContent=on?ageLim:"";
+ $("#srcChips").innerHTML=sources.length?sources.map((s,i)=>`<button class="chip ${s.on?"on":""}" data-s="${i}" aria-pressed="${s.on}">${esc(host(s.url))}</button>`).join(""):'<span class="status">No sources yet.</span>';
+ renderBar();
+}
+function renderList(){$("#list").innerHTML=sources.map((s,i)=>`<div class="src"><span>${esc(s.url)}</span><button class="x" data-r="${i}" aria-label="Remove">&times;</button></div>`).join("")}
+function ongoing(e){if(!e.end||e.end<=e.date)return false;if(e.dow&&e.dow.length<5)return false;const span=(new Date(e.end)-new Date(e.date))/864e5;return !e.time||span>=4}
+function noteH(n){if(!n)return"";if(n.length<=110)return`<p class="note">${esc(n)}</p>`;let c=n.slice(0,110);c=c.slice(0,Math.max(c.lastIndexOf(" "),60)).replace(/[,;:.\s-]+$/,"")+"…";return`<p class="note" data-full="${esc(n)}" data-short="${esc(c)}"><span>${esc(c)}</span> <button type="button" class="more">more</button></p>`}
+document.addEventListener("click",ev=>{const b=ev.target.closest(".more");if(!b)return;const p=b.parentElement,open=b.dataset.o==="1";p.firstElementChild.textContent=open?p.dataset.short:p.dataset.full;b.textContent=open?"more":"less";b.dataset.o=open?"0":"1"});
+function renderEvents(){
+ const w=weekOf(weekOff),hosts=new Set(sources.filter(s=>s.on).map(s=>host(s.url)));
+ const list=[],ong=new Set(),alw=new Set();
+ for(let i=0;i<7;i++){const d=new Date(w.mon);d.setDate(w.mon.getDate()+i);const k=iso(d),g=String(d.getDay());
+  if(!days.has(d.getDay()))continue;
+  EVENTS.forEach(e=>{if(k>=e.date&&k<=(e.end||e.date)&&(!e.dow||e.dow.includes(g))&&hosts.has(host(e.source))&&(ageLim==null||e.min==null||e.min<ageLim)&&(babies||e.max==null||e.max>1)&&(region==="all"||e.reg==="city")){ongoing(e)?(e.always?alw:ong).add(e):list.push({...e,date:k})}})}
+ const t=s=>fmt(new Date(s+"T12:00:00"),{day:"numeric",month:"short"});
+ const og0=ong.size?`<details class="og"><summary>Limited run <span>${ong.size}</span></summary><div class="grid">`+[...ong].sort((a,b)=>a.title.localeCompare(b.title)).map(e=>`<article class="card mini"><h3>${esc(e.title)}</h3><div class="meta"><span>${e.date>iso(w.mon)?t(e.date)+" to "+t(e.end):"Until "+t(e.end)}</span>${e.place?`<span>${esc(e.place)}</span>`:""}${e.age?`<span class="tag">${esc(e.age)}</span>`:""}<span class="tag">${esc(host(e.source))}</span></div>${noteH(e.note)}<a href="${esc(e.url)}" target="_blank" rel="noopener">Details</a></article>`).join("")+"</div></details>":"";
+ const dwt=e=>(e.dow==="12345"?"Mon to Fri":e.dow==="234560"?"Tue to Sun":"Daily")+(e.time?", "+e.time:"");
+ const ogA=alw.size?`<details class="og"><summary>Drop in any time <span>${alw.size}</span></summary><div class="grid">`+[...alw].sort((a,b)=>a.title.localeCompare(b.title)).map(e=>`<article class="card mini"><h3>${esc(e.title)}</h3><div class="meta"><span>${dwt(e)}</span>${e.place?`<span>${esc(e.place)}</span>`:""}${e.age?`<span class="tag">${esc(e.age)}</span>`:""}<span class="tag">${esc(host(e.source))}</span></div>${noteH(e.note)}<a href="${esc(e.url)}" target="_blank" rel="noopener">Details</a></article>`).join("")+"</div></details>":"";
+ const og=ogA+og0;
+ if(!list.length){$("#out").innerHTML=og+'<div class="empty">No dated events for these filters. Try other weekdays, a higher age or another week.</div>';return}
+ const by={};list.forEach(e=>(by[e.date]??=[]).push(e));
+ $("#out").innerHTML=og+Object.keys(by).sort().map(d=>{
+  const dt=new Date(d+"T12:00:00");
+  return `<h2>${fmt(dt,{weekday:"long"})}<small>${fmt(dt,{day:"numeric",month:"short"})}</small></h2><div class="grid">`+
+  by[d].sort((a,b)=>a.time.localeCompare(b.time)).map(e=>`<article class="card"><h3>${esc(e.title)}</h3><div class="meta">${e.time?`<span>${esc(e.time)}</span>`:""}${e.place?`<span>${esc(e.place)}</span>`:""}${e.age?`<span class="tag">${esc(e.age)}</span>`:""}<span class="tag">${esc(host(e.source))}</span></div>${noteH(e.note)}<a href="${esc(e.url)}" target="_blank" rel="noopener">Details</a></article>`).join("")+"</div>";
+ }).join("");
+}
+function all(){save();renderFilters();renderEvents()}
+$("#days").onclick=e=>{const b=e.target.closest("[data-d]");if(!b)return;const n=+b.dataset.d;days.has(n)?days.delete(n):days.add(n);all()};
+$("#srcChips").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;sources[+b.dataset.s].on=!sources[+b.dataset.s].on;all()};
+$("#babyOn").onclick=()=>{babies=!babies;all()};
+$("#ageOn").onclick=()=>{ageLim=ageLim==null?5:null;all()};
+$("#regChips").onclick=e=>{const b=e.target.closest("[data-g]");if(!b)return;region=b.dataset.g;all()};
+$("#aM").onclick=()=>{ageLim=Math.max(1,ageLim-1);all()};
+$("#aP").onclick=()=>{ageLim=Math.min(18,ageLim+1);all()};
+$("#prev").onclick=()=>{weekOff--;renderBar();renderEvents()};
+$("#next").onclick=()=>{weekOff++;renderBar();renderEvents()};
+$("#today").onclick=()=>{weekOff=0;renderBar();renderEvents()};
+$("#ftog").onclick=()=>{const p=$("#panel"),open=p.hidden;p.hidden=!open;$("#ftog").setAttribute("aria-expanded",open)};
+$("#edit").onclick=()=>{renderList();$("#dlg").showModal()};
+$("#close").onclick=()=>$("#dlg").close();
+$("#list").onclick=e=>{const b=e.target.closest("[data-r]");if(!b)return;sources.splice(+b.dataset.r,1);store.set("ka.sources.custom",true);renderList();all()};
+function add(){let v=$("#new").value.trim();if(!v)return;if(!/^https?:\/\//.test(v))v="https://"+v;try{new URL(v)}catch{return}sources.push({url:v,on:true});store.set("ka.sources.custom",true);$("#new").value="";renderList();all()}
+$("#add").onclick=add;$("#new").onkeydown=e=>{if(e.key==="Enter")add()};
+$("#reset").onclick=()=>{sources=DEFAULTS.map(u=>({url:u,on:true}));store.set("ka.sources.custom",false);renderList();all()};
+
+$("#foot").textContent="Updated __UPDATED__ from kikuka.ch, gz-zh.ch, zko.ch, kinderregion.ch, kreisflohmi.ch and a few hand-picked offers. Check the linked page before you go.";
+all();
+</script>
+</body>
+</html>
