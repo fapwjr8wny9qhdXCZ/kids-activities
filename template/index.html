@@ -85,14 +85,13 @@ input{font:inherit;width:100%;padding:11px 14px;border-radius:12px;border:1px so
 <section class="panel" id="panel" hidden>
 <p class="lbl">Weekdays</p><div class="row" id="days"></div>
 <p class="lbl">Age</p>
-<div class="row" style="align-items:center"><button class="chip" id="ageOn"></button><span class="step" id="stepper"><button class="ib" id="aM" aria-label="Lower">&minus;</button><b id="aV"></b><button class="ib" id="aP" aria-label="Higher">+</button></span><span id="aU" class="status">years</span><button class="chip" id="babyOn" aria-pressed="false">Include babies (1y or younger)</button></div>
+<div class="row" style="align-items:center"><button class="chip" id="ageOn"></button><span class="step" id="stepper"><button class="ib" id="aM" aria-label="Lower">&minus;</button><b id="aV"></b><button class="ib" id="aP" aria-label="Higher">+</button></span><span id="aU" class="status">years</span></div>
 <p class="lbl">Region</p><div class="row" id="regChips"></div>
 <p class="lbl">Sources</p><div class="row" id="srcChips"></div>
 <div class="bar"><span></span><button class="btn ghost" id="edit">Edit sources</button></div>
 </section>
 
 <main id="out"></main>
-<p class="foot" id="foot"></p>
 </div>
 
 <dialog id="dlg">
@@ -114,7 +113,7 @@ let sources=store.get("ka.sources",null);
 if(!sources)sources=DEFAULTS.map(u=>({url:u,on:true}));
 DEFAULTS.forEach(u=>{if(!sources.some(s=>host(s.url)===host(u))&&!store.get("ka.sources.custom",false))sources.push({url:u,on:true})});
 let days=new Set(store.get("ka.days",[1,5,6,0]));
-let ageLim=store.get("ka.age2",5);let babies=store.get("ka.babies",false); // number or null
+let ageLim=store.get("ka.age2",5); // number or null
 let weekOff=0;
 let region=store.get("ka.reg","city");
 
@@ -122,7 +121,7 @@ const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+Stri
 function weekOf(o){const t=new Date();t.setHours(12,0,0,0);const m=new Date(t);m.setDate(t.getDate()-((t.getDay()+6)%7)+7*o);const e=new Date(m);e.setDate(m.getDate()+6);return{mon:m,sun:e}}
 
 const EVENTS=/*EVENTS*/[]/*END*/;
-function save(){store.set("ka.sources",sources);store.set("ka.days",[...days]);store.set("ka.age2",ageLim);store.set("ka.reg",region);store.set("ka.babies",babies)}
+function save(){store.set("ka.sources",sources);store.set("ka.days",[...days]);store.set("ka.age2",ageLim);store.set("ka.reg",region)}
 const fmt=(d,o)=>d.toLocaleDateString("en-GB",o);
 function renderBar(){
  const w=weekOf(weekOff);
@@ -130,13 +129,12 @@ function renderBar(){
  $("#today").hidden=weekOff===0;
  const dn=DAYS.filter(d=>days.has(d[0])).map(d=>d[1]).join(" ")||"no days";
  const n=sources.filter(s=>s.on).length;
- $("#sum").textContent=dn+" · "+(ageLim==null?"any age":"under "+ageLim)+(babies?" + babies":"")+" · "+(region==="city"?"Zürich city":"whole region")+" · "+n+" sources";
+ $("#sum").textContent=dn+" · "+(ageLim==null?"any age":"under "+ageLim)+" · "+(region==="city"?"Zürich city":"whole region")+" · "+n+" sources";
 }
 function renderFilters(){
  $("#regChips").innerHTML=[["city","Only Zürich city"],["all","Whole region"]].map(([v,l])=>`<button class="chip ${region===v?"on":""}" data-g="${v}" aria-pressed="${region===v}">${l}</button>`).join("");
  $("#days").innerHTML=DAYS.map(([n,l])=>`<button class="chip ${days.has(n)?"on":""}" data-d="${n}" aria-pressed="${days.has(n)}">${l}</button>`).join("");
  const on=ageLim!=null;
- $("#babyOn").className="chip"+(babies?" on":"");$("#babyOn").setAttribute("aria-pressed",babies);
  $("#ageOn").className="chip"+(on?" on":"");$("#ageOn").textContent=on?"Targeting under":"Any age";$("#ageOn").setAttribute("aria-pressed",on);
  $("#stepper").style.visibility=on?"visible":"hidden";$("#aU").style.visibility=on?"visible":"hidden";$("#aV").textContent=on?ageLim:"";
  $("#srcChips").innerHTML=sources.length?sources.map((s,i)=>`<button class="chip ${s.on?"on":""}" data-s="${i}" aria-pressed="${s.on}">${esc(host(s.url))}</button>`).join(""):'<span class="status">No sources yet.</span>';
@@ -151,7 +149,7 @@ function renderEvents(){
  const list=[],ong=new Set(),alw=new Set();
  for(let i=0;i<7;i++){const d=new Date(w.mon);d.setDate(w.mon.getDate()+i);const k=iso(d),g=String(d.getDay());
   if(!days.has(d.getDay()))continue;
-  EVENTS.forEach(e=>{if(k>=e.date&&k<=(e.end||e.date)&&(!e.dow||e.dow.includes(g))&&hosts.has(host(e.source))&&(ageLim==null||e.min==null||e.min<ageLim)&&(babies||e.max==null||e.max>1)&&(region==="all"||e.reg==="city")){ongoing(e)?(e.always?alw:ong).add(e):list.push({...e,date:k})}})}
+  EVENTS.forEach(e=>{if(k>=e.date&&k<=(e.end||e.date)&&(!e.dow||e.dow.includes(g))&&hosts.has(host(e.source))&&(ageLim==null||e.min==null||e.min<ageLim)&&(e.max==null||e.max>1)&&(region==="all"||e.reg==="city")){ongoing(e)?(e.always?alw:ong).add(e):list.push({...e,date:k})}})}
  const t=s=>fmt(new Date(s+"T12:00:00"),{day:"numeric",month:"short"});
  const og0=ong.size?`<details class="og"><summary>Limited run <span>${ong.size}</span></summary><div class="grid">`+[...ong].sort((a,b)=>a.title.localeCompare(b.title)).map(e=>`<article class="card mini"><h3>${esc(e.title)}</h3><div class="meta"><span>${e.date>iso(w.mon)?t(e.date)+" to "+t(e.end):"Until "+t(e.end)}</span>${e.place?`<span>${esc(e.place)}</span>`:""}${e.age?`<span class="tag">${esc(e.age)}</span>`:""}<span class="tag">${esc(host(e.source))}</span></div>${noteH(e.note)}<a href="${esc(e.url)}" target="_blank" rel="noopener">Details</a></article>`).join("")+"</div></details>":"";
  const dwt=e=>(e.dow==="12345"?"Mon to Fri":e.dow==="234560"?"Tue to Sun":"Daily")+(e.time?", "+e.time:"");
@@ -168,7 +166,6 @@ function renderEvents(){
 function all(){save();renderFilters();renderEvents()}
 $("#days").onclick=e=>{const b=e.target.closest("[data-d]");if(!b)return;const n=+b.dataset.d;days.has(n)?days.delete(n):days.add(n);all()};
 $("#srcChips").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;sources[+b.dataset.s].on=!sources[+b.dataset.s].on;all()};
-$("#babyOn").onclick=()=>{babies=!babies;all()};
 $("#ageOn").onclick=()=>{ageLim=ageLim==null?5:null;all()};
 $("#regChips").onclick=e=>{const b=e.target.closest("[data-g]");if(!b)return;region=b.dataset.g;all()};
 $("#aM").onclick=()=>{ageLim=Math.max(1,ageLim-1);all()};
@@ -184,7 +181,6 @@ function add(){let v=$("#new").value.trim();if(!v)return;if(!/^https?:\/\//.test
 $("#add").onclick=add;$("#new").onkeydown=e=>{if(e.key==="Enter")add()};
 $("#reset").onclick=()=>{sources=DEFAULTS.map(u=>({url:u,on:true}));store.set("ka.sources.custom",false);renderList();all()};
 
-$("#foot").textContent="Updated __UPDATED__ from kikuka.ch, gz-zh.ch, zko.ch, kinderregion.ch, kreisflohmi.ch and a few hand-picked offers. Check the linked page before you go.";
 all();
 </script>
 </body>
