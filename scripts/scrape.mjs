@@ -92,7 +92,7 @@ async function gz(browser) {
     for (const c of cards) {
       const m = c.date.match(/(\d{2})\.(\d{2})\.(\d{4})\|?(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2})?/);
       if (!m || !c.title || GZ_OUT.test(c.place)) continue;
-      if (!(/Spiel/i.test(c.cat) || GZ_KIDS.test(c.title))) continue;
+      if (!(/Spiel|Tiere/i.test(c.cat) || GZ_KIDS.test(c.title) || GZ_ALWAYS.test(c.title))) continue;
       const date = ymd(m[3], m[2], m[1]);
       const key = c.title + c.place + date + m[4];
       if (seen.has(key)) continue;
@@ -105,11 +105,19 @@ async function gz(browser) {
 }
 
 // Fetch each offer page once: keep only free offers, attach "Besondere Hinweise".
+// Offers we always want, whatever they cost.
+const GZ_ALWAYS = /Mittagessen|Mittagstisch|Malen|Kerzenzieh/i;
+const FREE_RE = /kostenlos|gratis|gebührenfrei|keine kosten|freiwillig|kollekte|unkostenbeitrag|spende|eintritt frei/i;
+function cheap(cost) {
+  if (FREE_RE.test(cost)) return true;
+  const amts = [...cost.matchAll(/(?:CHF|Fr\.)\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*(?:CHF|Fr\.)/g)].map(m => parseFloat((m[1] || m[2]).replace(',', '.')));
+  return amts.length > 0 && Math.max(...amts) <= 20;
+}
 async function gzDetails(browser, events) {
   const CF = 'data/gzcache.json';
   let cache = {}; try { cache = JSON.parse(fs.readFileSync(CF, 'utf8')); } catch {}
   const urls = [...new Set(events.map(e => e.url))].filter(u => u !== GZ_SRC);
-  const todo = urls.filter(u => !cache[u] || cache[u].v !== 2 || Date.now() - cache[u].at > 7 * 864e5);
+  const todo = urls.filter(u => !cache[u] || cache[u].v !== 3 || Date.now() - cache[u].at > 7 * 864e5);
   console.log(`  gz details: ${urls.length} pages, ${todo.length} to fetch`);
   const ctx = await browser.newContext({ locale: 'de-CH' });
   await ctx.route('**/*', r => ['image', 'font', 'media', 'stylesheet'].includes(r.request().resourceType()) ? r.abort() : r.continue());
@@ -130,16 +138,20 @@ async function gzDetails(browser, events) {
           else if (cur) sec[cur] += (sec[cur] ? ' ' : '') + l;
         }
         const cost = sec['KOSTEN'] || '';
-        cache[u] = { v: 2, at: Date.now(), free: /kostenlos|gratis|gebührenfrei|keine kosten/i.test(cost), note: (sec['BESONDERE HINWEISE'] || '').slice(0, 900) };
-      } catch (err) { cache[u] = { v: 2, at: Date.now(), free: false, note: '', err: 1 }; }
+        cache[u] = { v: 3, at: Date.now(), cost: cost.slice(0, 300), note: (sec['BESONDERE HINWEISE'] || '').slice(0, 900) };
+      } catch (err) { cache[u] = { v: 3, at: Date.now(), cost: '', note: '', err: 1 }; }
     }
     await p.close();
   };
   await Promise.all(Array.from({ length: 8 }, worker));
   await ctx.close();
   fs.writeFileSync(CF, JSON.stringify(cache));
-  const res = events.filter(e => cache[e.url]?.free).map(e => ({ ...e, note: cache[e.url].note }));
-  console.log(`  gz free offers: ${res.length} of ${events.length}`);
+  const res = events.filter(e => { const c = cache[e.url]; return c && !c.err && (cheap(c.cost || '') || GZ_ALWAYS.test(e.title)); }).map(e => {
+    const c = cache[e.url]; const free = FREE_RE.test(c.cost || '');
+    const price = !free && c.cost ? `Cost: ${c.cost.replace(/\s+/g, ' ').slice(0, 100)}` : '';
+    return { ...e, note: [price, c.note].filter(Boolean).join('. ') };
+  });
+  console.log(`  gz offers kept (free, under CHF 20, or always-wanted): ${res.length} of ${events.length}`);
   return res;
 }
 
@@ -373,6 +385,26 @@ async function purpur(browser) {
   return out;
 }
 
+// ---------- ideesport.ch (MiniMove Kern, Sunday sessions) ----------
+async function ideesport(browser) {
+  const SRC = 'https://www.ideesport.ch/de/angebot/minimove/minimove-kern';
+  const raw = await withPage(browser, SRC, async p => { await p.waitForTimeout(1500); return p.evaluate(() => document.body.innerText); });
+  const L = raw.replace(/\u00ad/g, '').split('\n').map(l => l.trim()).filter(Boolean);
+  const title = 'MiniMove Kern';
+  const ortLine = L.find(l => /^Ort:/.test(l)) || '';
+  const place = ortLine.replace(/^Ort:\s*/, '').replace(/,\s*8\d{3}.*$/, '').trim();
+  const out = [];
+  for (let i = 0; i < L.length; i++) {
+    const d = L[i].match(/^(\d{2})\.(\d{2})\.(\d{4})$/); if (!d) continue;
+    const t = (L[i + 1] || '').match(/^(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})$/); if (!t) continue;
+    const rem = L[i + 2] && !/^(Sonntag|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Ort:)/.test(L[i + 2]) ? L[i + 2] : '';
+    out.push(mk(SRC, { date: ymd(d[3], d[2], d[1]), time: `${t[1]} to ${t[2]}`, title, place, min: 0, max: 6,
+      note: ['Free, no registration.', rem].filter(Boolean).join(' '), url: SRC }));
+  }
+  console.log(`  ideesport: ${out.length} dates`);
+  return out;
+}
+
 // ---------- main ----------
 const SOURCES = {
   'https://kikuka.ch/kalender': kikuka,
@@ -381,7 +413,8 @@ const SOURCES = {
   'https://kinderregion.ch/de/veranstaltungen/': kinderregion,
   'https://kreisflohmi.ch/': flohmi,
   'https://www.stadt-zuerich.ch/de/stadtleben/zusammenleben/in-den-quartieren/familienfreizeit/in-ganz-zuerich.html': stadt,
-  'https://theater-purpur.ch/theater': purpur
+  'https://theater-purpur.ch/theater': purpur,
+  'https://www.ideesport.ch/de/angebot/minimove/minimove-kern': ideesport
 };
 let data = JSON.parse(fs.readFileSync('data/events.json', 'utf8'));
 const browser = await chromium.launch();
