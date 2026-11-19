@@ -91,11 +91,11 @@ input{font:inherit;width:100%;padding:11px 14px;border-radius:12px;border:1px so
 <p class="lbl">Sources</p><div class="row" id="srcChips"></div>
 <details class="adv" id="adv"><summary>Advanced filters <small id="advSum"></small></summary>
 <p class="lbl">Cost</p>
-<div class="row" style="align-items:center"><button class="chip" id="costOn"></button><span class="step" id="costStep"><button class="ib" id="cM" aria-label="Lower">&minus;</button><b id="cV"></b><button class="ib" id="cP" aria-label="Higher">+</button></span><span id="cU" class="status">CHF</span></div>
+<div class="row" style="align-items:center"><button class="chip" id="costOn"></button><span class="step" id="costStep"><button class="ib" id="cM" aria-label="Lower">&minus;</button><b id="cV"></b><button class="ib" id="cP" aria-label="Higher">+</button></span><span id="cU" class="status">CHF</span><button class="chip" id="keepOn" aria-pressed="true">Lunches, painting and candle dipping ignore the limit</button></div>
 <p class="status" id="costHint" style="margin:6px 0 0"></p>
 <p class="lbl">Hidden offer types (tap to show them)</p>
 <div class="row" id="advChips"></div>
-<div class="bar"><span class="status">Highlighted means hidden. Lunches, painting and candle dipping ignore the cost limit.</span><button class="btn ghost" id="advReset">Reset</button></div>
+<div class="bar"><span class="status">Highlighted means hidden or active.</span><button class="btn ghost" id="advReset">Reset</button></div>
 </details>
 <div class="bar"><span></span><button class="btn ghost" id="edit">Edit sources</button></div>
 </section>
@@ -132,9 +132,9 @@ function weekOf(o){const t=new Date();t.setHours(12,0,0,0);const m=new Date(t);m
 const EVENTS=/*EVENTS*/[]/*END*/;
 const RULES=/*RULES*/[]/*END*/;
 let advOff=new Set(store.get("ka.advOff",[])); // rules the user has switched off (their events are shown)
-let costMax=store.get("ka.cost",20); // CHF, or null for any cost
-const hid=e=>(e.x||[]).some(id=>!advOff.has(id))||(!advOff.has("baby")&&e.max!=null&&e.max<=1)||(costMax!=null&&e.cost!=null&&e.cost>costMax&&!e.k);
-function save(){store.set("ka.sources",sources);store.set("ka.days",[...days]);store.set("ka.age2",ageLim);store.set("ka.reg",region);store.set("ka.advOff",[...advOff]);store.set("ka.cost",costMax)}
+let costMax=store.get("ka.cost",20);let keepOn=store.get("ka.keep",true); // CHF, or null for any cost
+const hid=e=>(e.x||[]).some(id=>!advOff.has(id))||(!advOff.has("baby")&&e.max!=null&&e.max<=1)||(costMax!=null&&e.cost!=null&&e.cost>costMax&&!(e.k&&keepOn));
+function save(){store.set("ka.sources",sources);store.set("ka.days",[...days]);store.set("ka.age2",ageLim);store.set("ka.reg",region);store.set("ka.advOff",[...advOff]);store.set("ka.cost",costMax);store.set("ka.keep",keepOn)}
 const fmt=(d,o)=>d.toLocaleDateString("en-GB",o);
 function renderBar(){
  const w=weekOf(weekOff);
@@ -181,16 +181,17 @@ function renderAdv(){
  $("#advChips").innerHTML=RULES.filter(r=>r.n>0).map(r=>{const hide=!advOff.has(r.id);return`<button class="chip ${hide?"on":""}" data-a="${r.id}" aria-pressed="${hide}" title="${esc(r.hint)}">${esc(r.label)} <small>${r.n}</small></button>`}).join("");
  const on=costMax!=null;
  $("#costOn").className="chip"+(on?" on":"");$("#costOn").textContent=on?"Hide offers costing more than":"Any cost";$("#costOn").setAttribute("aria-pressed",on);
- $("#costStep").style.visibility=on?"visible":"hidden";$("#cU").style.visibility=on?"visible":"hidden";$("#cV").textContent=on?costMax:"";
+ $("#costStep").style.visibility=on?"visible":"hidden";$("#cU").style.visibility=on?"visible":"hidden";$("#cV").textContent=on?costMax:"";$("#keepOn").style.display=on?"":"none";$("#keepOn").className="chip"+(keepOn?" on":"");$("#keepOn").setAttribute("aria-pressed",keepOn);
  $("#costHint").textContent=on?"Offers without a known price are always shown.":"";
  const n=RULES.filter(r=>r.n>0&&!advOff.has(r.id)).length+(costMax!=null?1:0);
  $("#advSum").textContent=n+" active";
 }
 $("#advChips").onclick=e=>{const b=e.target.closest("[data-a]");if(!b)return;const id=b.dataset.a;advOff.has(id)?advOff.delete(id):advOff.add(id);all()};
+$("#keepOn").onclick=()=>{keepOn=!keepOn;all()};
 $("#costOn").onclick=()=>{costMax=costMax==null?20:null;all()};
 $("#cM").onclick=()=>{costMax=Math.max(0,costMax-5);all()};
 $("#cP").onclick=()=>{costMax=Math.min(200,costMax+5);all()};
-$("#advReset").onclick=()=>{advOff=new Set();costMax=20;all()};
+$("#advReset").onclick=()=>{advOff=new Set();costMax=20;keepOn=true;all()};
 function all(){save();renderFilters();renderAdv();renderEvents()}
 $("#days").onclick=e=>{const b=e.target.closest("[data-d]");if(!b)return;const n=+b.dataset.d;days.has(n)?days.delete(n):days.add(n);all()};
 $("#srcChips").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;sources[+b.dataset.s].on=!sources[+b.dataset.s].on;all()};

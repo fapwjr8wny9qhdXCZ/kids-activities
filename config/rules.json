@@ -74,14 +74,15 @@
   {
    "id": "teens",
    "label": "Teen programmes",
-   "hint": "Oberstufe, Jugendtreff, Jugi, Teenie, Teenager, Jugendliche",
+   "hint": "Oberstufe, Jugendtreff, Jugi, Teenie, Teenager, Teens, Jugendliche",
    "titles": [
     "Oberstufe",
     "Jugendtreff",
     "Jugi\\b",
     "Teenie",
     "Teenager",
-    "Jugendliche"
+    "Jugendliche",
+    "\\bTeens?\\b"
    ]
   },
   {
@@ -135,6 +136,17 @@
    ],
    "hosts": [
     "gz-zh.ch"
+   ]
+  },
+  {
+   "id": "lang",
+   "label": "Other languages",
+   "hint": "Titles in French, Spanish, English and other languages, or language classes (Spanisch, Französisch, Englisch ...)",
+   "titles": [
+    "[áíóúñçèàâêôîûœ]|(?<!caf)é",
+    "Groupe de|\\bde jeu\\b|\\bLes\\s|\\bLe\\s|\\bLa\\s",
+    "Spanisch|Französisch|Englisch|Italienisch|Portugiesisch|Arabisch|Türkisch|Russisch|Albanisch|Chinesisch|Tamil|Tigrinya|Farsi|Dari|Kurdisch|Ukrainisch|Bosnisch|Serbisch|Kroatisch",
+    "\\bPlay ?Session\\b|Playgroup|\\bEnglish\\b|Español|Français|Italiano"
    ]
   },
   {
