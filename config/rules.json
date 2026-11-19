@@ -1,0 +1,153 @@
+{
+ "_note": "Each rule hides matching events by default. Users can switch rules off in the page under Advanced filters. Regexes are case-insensitive.",
+ "keep": "Mittagessen|Mittagstisch|Malen|Kerzenzieh",
+ "rules": [
+  {
+   "id": "courses",
+   "label": "Paid courses and classes",
+   "hint": "Kurs, Werkstatt, circus and acrobatics classes, trial lessons, birthday parties",
+   "titles": [
+    "Kurs ",
+    "Werkstatt",
+    "Akro",
+    "Akrobatik",
+    "Theaterspiel",
+    "Vertikaltuch",
+    "Kindergeburtstag",
+    "Schnuppermonat",
+    "Morgen Forschen",
+    "Zirkuszwergli",
+    "Zirkus Starter",
+    "Zirkus-Durchstarter",
+    "Nähwerkstatt",
+    "Sprach-?caf"
+   ],
+   "urls": [
+    "Metzenthin",
+    "Zirkusquartier",
+    "Nuori",
+    "froh%26farbig",
+    "Gili",
+    "filacro",
+    "spacecake",
+    "Zeichnerei",
+    "Tanzhaus"
+   ]
+  },
+  {
+   "id": "parentbaby",
+   "label": "Parent and baby classes",
+   "hint": "PEKiP, Child'Space, Mama-Baby yoga, postnatal and Rückbildung",
+   "titles": [
+    "Rückbildung",
+    "Postnatal",
+    "Pilates",
+    "PEKiP",
+    "Child.?Space",
+    "Mama-Baby"
+   ]
+  },
+  {
+   "id": "consult",
+   "label": "Counselling (Beratung)",
+   "hint": "Family counselling and similar advice sessions",
+   "titles": [
+    "Beratung"
+   ]
+  },
+  {
+   "id": "crawl",
+   "label": "Krabbel groups",
+   "hint": "Crawling groups",
+   "titles": [
+    "Krabbel"
+   ]
+  },
+  {
+   "id": "literacy",
+   "label": "Family Literacy",
+   "hint": "Language and reading groups in any language",
+   "titles": [
+    "Family ?Literacy"
+   ]
+  },
+  {
+   "id": "teens",
+   "label": "Teen programmes",
+   "hint": "Oberstufe, Jugendtreff, Jugi, Teenie, Teenager, Jugendliche",
+   "titles": [
+    "Oberstufe",
+    "Jugendtreff",
+    "Jugi\\b",
+    "Teenie",
+    "Teenager",
+    "Jugendliche"
+   ]
+  },
+  {
+   "id": "adults",
+   "label": "Adult and parent evenings",
+   "hint": "Themenabende, Männer- and Frauenabende, couples and relaxation talks",
+   "titles": [
+    "Themenabend",
+    "Männerabend",
+    "Männer-?abende",
+    "Frauenabend",
+    "Frauen-?abende",
+    "Paar bleiben",
+    "Entspannt am Familientisch",
+    "Übergänge achtsam"
+   ]
+  },
+  {
+   "id": "seniors",
+   "label": "Seniors",
+   "hint": "Senior, 60+, Ältere",
+   "titles": [
+    "Senior",
+    "60\\+",
+    "60plus",
+    "Altern",
+    "Ältere"
+   ]
+  },
+  {
+   "id": "schools",
+   "label": "Schools, Horte and volunteer calls",
+   "hint": "School class sessions, after-school care groups, helpers wanted",
+   "titles": [
+    "Schulklassen",
+    "Helfende",
+    "Horte"
+   ]
+  },
+  {
+   "id": "gzplaces",
+   "label": "Some GZ locations",
+   "hint": "GZ Affoltern, Leimbach, Seebach, Witikon, Höngg",
+   "places": [
+    "Affoltern",
+    "Leimbach",
+    "Seebach",
+    "Witikon",
+    "Höngg",
+    "Hoengg"
+   ],
+   "hosts": [
+    "gz-zh.ch"
+   ]
+  },
+  {
+   "id": "baby",
+   "label": "Baby-only offers",
+   "hint": "Offers whose age range ends at 1 year or younger (for example baby massage)",
+   "age": true
+  },
+  {
+   "id": "dup",
+   "label": "Duplicates",
+   "hint": "The same event listed twice (same day, time, title and venue)",
+   "builtin": true
+  }
+ ]
+}

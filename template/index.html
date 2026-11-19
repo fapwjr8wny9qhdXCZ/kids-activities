@@ -70,6 +70,7 @@ input{font:inherit;width:100%;padding:11px 14px;border-radius:12px;border:1px so
 .foot{margin-top:36px;color:var(--mute);font-size:.78rem;text-align:center}
 .link{background:none;border:0;color:var(--accent);font-weight:600;font-size:.85rem;padding:6px}
 .more{background:none;border:0;padding:0;color:var(--accent,#7c6cff);font:inherit;cursor:pointer}
+.adv{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}.adv summary{cursor:pointer;font-weight:600}.adv summary small,.chip small{opacity:.7;font-weight:400}
 .note{margin:.5rem 0 0;font-size:.85rem;opacity:.8;line-height:1.4}
 </style>
 </head>
@@ -88,6 +89,14 @@ input{font:inherit;width:100%;padding:11px 14px;border-radius:12px;border:1px so
 <div class="row" style="align-items:center"><button class="chip" id="ageOn"></button><span class="step" id="stepper"><button class="ib" id="aM" aria-label="Lower">&minus;</button><b id="aV"></b><button class="ib" id="aP" aria-label="Higher">+</button></span><span id="aU" class="status">years</span></div>
 <p class="lbl">Region</p><div class="row" id="regChips"></div>
 <p class="lbl">Sources</p><div class="row" id="srcChips"></div>
+<details class="adv" id="adv"><summary>Advanced filters <small id="advSum"></small></summary>
+<p class="lbl">Cost</p>
+<div class="row" style="align-items:center"><button class="chip" id="costOn"></button><span class="step" id="costStep"><button class="ib" id="cM" aria-label="Lower">&minus;</button><b id="cV"></b><button class="ib" id="cP" aria-label="Higher">+</button></span><span id="cU" class="status">CHF</span></div>
+<p class="status" id="costHint" style="margin:6px 0 0"></p>
+<p class="lbl">Hidden offer types (tap to show them)</p>
+<div class="row" id="advChips"></div>
+<div class="bar"><span class="status">Highlighted means hidden. Lunches, painting and candle dipping ignore the cost limit.</span><button class="btn ghost" id="advReset">Reset</button></div>
+</details>
 <div class="bar"><span></span><button class="btn ghost" id="edit">Edit sources</button></div>
 </section>
 
@@ -121,7 +130,11 @@ const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+Stri
 function weekOf(o){const t=new Date();t.setHours(12,0,0,0);const m=new Date(t);m.setDate(t.getDate()-((t.getDay()+6)%7)+7*o);const e=new Date(m);e.setDate(m.getDate()+6);return{mon:m,sun:e}}
 
 const EVENTS=/*EVENTS*/[]/*END*/;
-function save(){store.set("ka.sources",sources);store.set("ka.days",[...days]);store.set("ka.age2",ageLim);store.set("ka.reg",region)}
+const RULES=/*RULES*/[]/*END*/;
+let advOff=new Set(store.get("ka.advOff",[])); // rules the user has switched off (their events are shown)
+let costMax=store.get("ka.cost",20); // CHF, or null for any cost
+const hid=e=>(e.x||[]).some(id=>!advOff.has(id))||(!advOff.has("baby")&&e.max!=null&&e.max<=1)||(costMax!=null&&e.cost!=null&&e.cost>costMax&&!e.k);
+function save(){store.set("ka.sources",sources);store.set("ka.days",[...days]);store.set("ka.age2",ageLim);store.set("ka.reg",region);store.set("ka.advOff",[...advOff]);store.set("ka.cost",costMax)}
 const fmt=(d,o)=>d.toLocaleDateString("en-GB",o);
 function renderBar(){
  const w=weekOf(weekOff);
@@ -149,7 +162,7 @@ function renderEvents(){
  const list=[],ong=new Set(),alw=new Set();
  for(let i=0;i<7;i++){const d=new Date(w.mon);d.setDate(w.mon.getDate()+i);const k=iso(d),g=String(d.getDay());
   if(!days.has(d.getDay()))continue;
-  EVENTS.forEach(e=>{if(k>=e.date&&k<=(e.end||e.date)&&(!e.dow||e.dow.includes(g))&&hosts.has(host(e.source))&&(ageLim==null||e.min==null||e.min<ageLim)&&(e.max==null||e.max>1)&&(region==="all"||e.reg==="city")){ongoing(e)?(e.always?alw:ong).add(e):list.push({...e,date:k})}})}
+  EVENTS.forEach(e=>{if(k>=e.date&&k<=(e.end||e.date)&&(!e.dow||e.dow.includes(g))&&hosts.has(host(e.source))&&(ageLim==null||e.min==null||e.min<ageLim)&&!hid(e)&&(region==="all"||e.reg==="city")){ongoing(e)?(e.always?alw:ong).add(e):list.push({...e,date:k})}})}
  const t=s=>fmt(new Date(s+"T12:00:00"),{day:"numeric",month:"short"});
  const og0=ong.size?`<details class="og"><summary>Limited run <span>${ong.size}</span></summary><div class="grid">`+[...ong].sort((a,b)=>a.title.localeCompare(b.title)).map(e=>`<article class="card mini"><h3>${esc(e.title)}</h3><div class="meta"><span>${e.date>iso(w.mon)?t(e.date)+" to "+t(e.end):"Until "+t(e.end)}</span>${e.place?`<span>${esc(e.place)}</span>`:""}${e.age?`<span class="tag">${esc(e.age)}</span>`:""}<span class="tag">${esc(host(e.source))}</span></div>${noteH(e.note)}<a href="${esc(e.url)}" target="_blank" rel="noopener">Details</a></article>`).join("")+"</div></details>":"";
  const dwt=e=>(e.dow==="12345"?"Mon to Fri":e.dow==="234560"?"Tue to Sun":"Daily")+(e.time?", "+e.time:"");
@@ -163,7 +176,22 @@ function renderEvents(){
   by[d].sort((a,b)=>a.time.localeCompare(b.time)).map(e=>`<article class="card"><h3>${esc(e.title)}</h3><div class="meta">${e.time?`<span>${esc(e.time)}</span>`:""}${e.place?`<span>${esc(e.place)}</span>`:""}${e.age?`<span class="tag">${esc(e.age)}</span>`:""}<span class="tag">${esc(host(e.source))}</span></div>${noteH(e.note)}<a href="${esc(e.url)}" target="_blank" rel="noopener">Details</a></article>`).join("")+"</div>";
  }).join("");
 }
-function all(){save();renderFilters();renderEvents()}
+
+function renderAdv(){
+ $("#advChips").innerHTML=RULES.filter(r=>r.n>0).map(r=>{const hide=!advOff.has(r.id);return`<button class="chip ${hide?"on":""}" data-a="${r.id}" aria-pressed="${hide}" title="${esc(r.hint)}">${esc(r.label)} <small>${r.n}</small></button>`}).join("");
+ const on=costMax!=null;
+ $("#costOn").className="chip"+(on?" on":"");$("#costOn").textContent=on?"Hide offers costing more than":"Any cost";$("#costOn").setAttribute("aria-pressed",on);
+ $("#costStep").style.visibility=on?"visible":"hidden";$("#cU").style.visibility=on?"visible":"hidden";$("#cV").textContent=on?costMax:"";
+ $("#costHint").textContent=on?"Offers without a known price are always shown.":"";
+ const n=RULES.filter(r=>r.n>0&&!advOff.has(r.id)).length+(costMax!=null?1:0);
+ $("#advSum").textContent=n+" active";
+}
+$("#advChips").onclick=e=>{const b=e.target.closest("[data-a]");if(!b)return;const id=b.dataset.a;advOff.has(id)?advOff.delete(id):advOff.add(id);all()};
+$("#costOn").onclick=()=>{costMax=costMax==null?20:null;all()};
+$("#cM").onclick=()=>{costMax=Math.max(0,costMax-5);all()};
+$("#cP").onclick=()=>{costMax=Math.min(200,costMax+5);all()};
+$("#advReset").onclick=()=>{advOff=new Set();costMax=20;all()};
+function all(){save();renderFilters();renderAdv();renderEvents()}
 $("#days").onclick=e=>{const b=e.target.closest("[data-d]");if(!b)return;const n=+b.dataset.d;days.has(n)?days.delete(n):days.add(n);all()};
 $("#srcChips").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;sources[+b.dataset.s].on=!sources[+b.dataset.s].on;all()};
 $("#ageOn").onclick=()=>{ageLim=ageLim==null?5:null;all()};

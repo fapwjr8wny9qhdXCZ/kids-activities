@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import { chromium } from 'playwright';
 
-const EXC = JSON.parse(fs.readFileSync('config/exclude.json', 'utf8'));
 const pad = n => String(n).padStart(2, '0');
 const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const today = new Date(); today.setHours(12, 0, 0, 0);
@@ -35,12 +34,11 @@ function mk(source, o) {
   return {
     note: o.note || '',
     source, date: o.date, end: o.end || null, dow: o.dow || null, time: o.time || '',
-    title: o.title, place: o.place || '', min: o.min ?? null, max: o.max ?? null, age: ageText(o.min ?? null, o.max ?? null),
+    title: o.title, place: o.place || '', min: o.min ?? null, max: o.max ?? null, cost: o.cost ?? null, age: ageText(o.min ?? null, o.max ?? null),
     url: o.url, reg: OUT.test(`${o.title} ${o.place || ''}`) ? 'out' : 'city', always: !!o.always
   };
 }
 const keep = e => (e.end || e.date) >= TODAY && e.date <= LIMIT;
-const excluded = e => EXC.titles.some(t => new RegExp(t, 'i').test(e.title)) || EXC.urls.some(u => new RegExp(u, 'i').test(e.url));
 
 async function pmap(items, n, fn) {
   const res = new Array(items.length); let i = 0;
@@ -91,7 +89,7 @@ async function gz(browser) {
   for (const { q, cards } of days) {
     for (const c of cards) {
       const m = c.date.match(/(\d{2})\.(\d{2})\.(\d{4})\|?(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2})?/);
-      if (!m || !c.title || GZ_OUT.test(c.place)) continue;
+      if (!m || !c.title) continue;
       if (!(/Spiel|Tiere/i.test(c.cat) || GZ_KIDS.test(c.title) || GZ_ALWAYS.test(c.title))) continue;
       const date = ymd(m[3], m[2], m[1]);
       const key = c.title + c.place + date + m[4];
@@ -146,12 +144,15 @@ async function gzDetails(browser, events) {
   await Promise.all(Array.from({ length: 8 }, worker));
   await ctx.close();
   fs.writeFileSync(CF, JSON.stringify(cache));
-  const res = events.filter(e => { const c = cache[e.url]; return c && !c.err && (cheap(c.cost || '') || GZ_ALWAYS.test(e.title)); }).map(e => {
-    const c = cache[e.url]; const free = FREE_RE.test(c.cost || '');
-    const price = !free && c.cost ? `Cost: ${c.cost.replace(/\s+/g, ' ').slice(0, 100)}` : '';
-    return { ...e, note: [price, c.note].filter(Boolean).join('. ') };
+  const res = events.map(e => {
+    const c = cache[e.url] || {}; const cost = c.cost || '';
+    const free = FREE_RE.test(cost);
+    const amts = [...cost.matchAll(/(?:CHF|Fr\.)\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*(?:CHF|Fr\.)/g)].map(m => parseFloat((m[1] || m[2]).replace(',', '.')));
+    const num = free ? 0 : amts.length ? Math.max(...amts) : null;
+    const price = !free && cost ? `Cost: ${cost.replace(/\s+/g, ' ').slice(0, 100)}` : '';
+    return { ...e, cost: num, note: [price, c.note].filter(Boolean).join('. ') };
   });
-  console.log(`  gz offers kept (free, under CHF 20, or always-wanted): ${res.length} of ${events.length}`);
+  console.log(`  gz offers: ${res.length}`);
   return res;
 }
 
@@ -399,7 +400,7 @@ async function ideesport(browser) {
     const t = (L[i + 1] || '').match(/^(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})$/); if (!t) continue;
     const rem = L[i + 2] && !/^(Sonntag|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Ort:)/.test(L[i + 2]) ? L[i + 2] : '';
     out.push(mk(SRC, { date: ymd(d[3], d[2], d[1]), time: `${t[1]} to ${t[2]}`, title, place, min: 0, max: 6,
-      note: ['Free, no registration.', rem].filter(Boolean).join(' '), url: SRC }));
+      cost: 0, note: ['Free, no registration.', rem].filter(Boolean).join(' '), url: SRC }));
   }
   console.log(`  ideesport: ${out.length} dates`);
   return out;
@@ -422,7 +423,7 @@ let ok = 0;
 const results = await Promise.all(Object.entries(SOURCES).map(async ([src, fn]) => {
   try {
     console.log(`Scraping ${src}`);
-    const ev = (await fn(browser)).filter(keep).filter(e => !excluded(e));
+    const ev = (await fn(browser)).filter(keep);
     console.log(`  ${src} -> ${ev.length} events`);
     return { src, ev };
   } catch (err) { console.log(`  ${src} -> FAILED (${err.message.split('\n')[0]}), keeping previous data`); return { src, ev: [] }; }
