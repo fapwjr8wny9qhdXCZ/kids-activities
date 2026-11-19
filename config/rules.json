@@ -145,8 +145,17 @@
    "titles": [
     "[áíóúñçèàâêôîûœ]|(?<!caf)é",
     "Groupe de|\\bde jeu\\b|\\bLes\\s|\\bLe\\s|\\bLa\\s",
-    "Spanisch|Französisch|Englisch|Italienisch|Portugiesisch|Arabisch|Türkisch|Russisch|Albanisch|Chinesisch|Tamil|Tigrinya|Farsi|Dari|Kurdisch|Ukrainisch|Bosnisch|Serbisch|Kroatisch",
+    "Spanisch|Französisch|Englisch|Italienisch|Portugiesisch|Arabisch|Türkisch|Russisch|Albanisch|Chinesisch|Tamil|Tigrinya|Farsi|Dari|Kurdisch|Ukrainisch|Bosnisch|Serbisch|Kroatisch|Polnisch|Tschechisch|Ungarisch|Rumänisch|Griechisch|Japanisch|Koreanisch|Bulgarisch|Slowak|Sloven|Niederländisch|Schwedisch|Finnisch|Hebräisch|Persisch|Hindi|Urdu|Swahili|Eritreisch|Somali|Tibetisch|Vietnames|Tagalog",
     "\\bPlay ?Session\\b|Playgroup|\\bEnglish\\b|Español|Français|Italiano"
+   ]
+  },
+  {
+   "id": "months",
+   "label": "Infant groups (age in months)",
+   "hint": "Offers for babies and toddlers, for example Begleiteter Bewegungsraum 5-11 M or 12-20 M",
+   "titles": [
+    "\\b\\d{1,2}\\s*[–-]\\s*\\d{1,2}\\s*M(?:on(?:ate)?)?\\b",
+    "Begleiteter Bewegungsraum"
    ]
   },
   {

@@ -9,6 +9,8 @@ const rules = R.rules.map(r => ({
 }));
 const implied = e => {
   if (e.min != null) return e;
+  const kl = e.title.match(/(\d)\.?\s*[–-]\s*(\d)\.\s*Klasse/) || e.title.match(/(\d)\.\s*Klasse/);
+  if (kl) { const a = +kl[1], z = +(kl[2] || kl[1]); return { ...e, min: a + 6, max: z + 7, age: `${a + 6} to ${z + 7} years` }; }
   if (/Baby\s?massage/i.test(e.title)) return { ...e, min: 0, max: 1, age: '0 to 1 years' };
   if (/Mittelstufe/i.test(e.title)) return { ...e, min: 10, max: 12, age: '10 to 12 years' };
   return e;
